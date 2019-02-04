@@ -1,23 +1,36 @@
-import React from "react";
+import React, { Component } from "react";
 import styles from "./Modal.module.css";
 import Backdrop from "../Backdrop/Backdrop";
 
-const modal = props => {
-  const style = [styles.Modal];
-  style.push(props.show ? styles.Displayed : styles.Hidden);
-  return (
-    <>
-      <Backdrop show={props.show} onBackdropClick={props.onModalClose}/>
-      <div
-        className={style.reduce((classes, elem) => {
-          return classes.concat(" ", elem);
-        }, "")}
-      >
-        {" "}
-        {props.children}
-      </div>
-    </>
-  );
-};
+class Modal extends Component {
+  shouldComponentUpdate(nextProps, nextState) {
+    return (this.props.show !== nextProps.show)
+  }
 
-export default modal;
+  componentWillUpdate() {
+    console.log ("Modal - willUpdate");
+  }
+
+  render() {
+    const style = [styles.Modal];
+    style.push(this.props.show ? styles.Displayed : styles.Hidden);
+    return (
+      <>
+        <Backdrop
+          show={this.props.show}
+          onBackdropClick={this.props.onModalClose}
+        />
+        <div
+          className={style.reduce((classes, elem) => {
+            return classes.concat(" ", elem);
+          }, "")}
+        >
+          {" "}
+          {this.props.children}
+        </div>
+      </>
+    );
+  }
+}
+
+export default Modal;
