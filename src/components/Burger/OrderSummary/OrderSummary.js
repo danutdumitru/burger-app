@@ -3,6 +3,10 @@ import Button from "../../UI/Button/Button";
 import PropTypes from "prop-types";
 
 const orderSummary = props => {
+  if (!props.ingredients) {
+    return null;
+  }
+
   const ingredientsList = Object.keys(props.ingredients).map(key => {
     return (
       <li key={key}>

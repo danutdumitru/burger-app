@@ -3,6 +3,10 @@ import BurgerIngredient from "./BurgerIngredient/BurgerIngredient";
 import styles from "./Burger.module.css";
 
 const burger = props => {
+  if (!props.ingredients) {
+    return null;
+  }
+  
   let ingredients = Object.keys(props.ingredients)
     .map(key => {
       return [...Array(props.ingredients[key])].map((_, i) => {
