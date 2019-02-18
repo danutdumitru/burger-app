@@ -31,6 +31,7 @@ const withErrorHandling = (WrappedComponent, axios) => {
       axios.interceptors.request.eject(this.state.requestInterceptor);
       axios.interceptors.response.eject(this.state.responseInterceptor);
     }
+    
     render() {
       return (
         <>

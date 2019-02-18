@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+
 import Burger from "../../components/Burger/Burger";
 import BuildControls from "../../components/Burger/BuildControls/BuildControls";
 import Modal from "../../components/UI/Modal/Modal";
@@ -34,6 +35,7 @@ class BurgerBuilder extends Component {
   }
 
   componentDidMount() {
+    console.log("BurgerBUilder - componentDidMount");
     axios
       .get("/ingredients.json")
       .then(response => {
@@ -100,60 +102,39 @@ class BurgerBuilder extends Component {
       loading: loading
     });
   };
+
   continuePurchaseHandler = () => {
-    this.setState({
-      loading: true
-    });
-    const order = {
-      ingredients: this.state.ingredients,
-      totalPrice: this.state.totalPrice,
-      customer: {
-        name: "Danut Dumitru",
-        address: {
-          stret: "sos pantelimon",
-          zipCode: "021613",
-          country: "Romania"
-        },
-        email: "test@gmail.com"
-      },
-      deliveryMethod: "fastest"
-    };
-    axios
-      .post("/orders.json", order)
-      .then(response => {
-        console.log(response);
-        this.setState({
-          purchasing: false,
-          loading: false
-        });
-      })
-      .catch(error => {
-        this.setState({
-          loading: false,
-          purchasing: false
-        });
-        console.log(error);
-      });
+   const params = [];
+   Object.keys(this.state.ingredients).forEach ( key => {
+     params.push ( encodeURIComponent(key) + "=" + encodeURIComponent(this.state.ingredients[key]));
+   });
+   params.push('price=' + this.state.totalPrice);
+   const queryParams = params.join ('&');
+    this.props.history.push ( {
+      pathname: '/checkout',
+      search: '?' + queryParams}
+      );
   };
 
   render() {
-    console.log("render...");
+    // console.log("render...");
+    // if (this.state.loading) {
+    //   return <Redirect to={ {pathname: "/checkout", ingredients :this.state.ingredients}}/>;
+    // }
+    
     const disabledInfo = {
       ...this.state.ingredients
     };
     for (let key in disabledInfo) {
       disabledInfo[key] = disabledInfo[key] <= 0;
     }
-    const orderSumary = this.state.loading ? (
-      <Spinner />
-    ) : (
+    const orderSumary = 
       <OrderSummary
         ingredients={this.state.ingredients}
         onContinue={this.continuePurchaseHandler}
         onCancel={this.cancelPurchaseHandler}
         totalPrice={this.state.totalPrice}
-      />
-    );
+      />;
 
     const burger = this.state.ingredients ? (
       <>
