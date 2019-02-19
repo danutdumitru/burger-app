@@ -26,9 +26,11 @@ class ContactData extends Component {
               { value: "cheapest", displayedValue: "Cheapest" }
             ]
           },
-          value: "cheapest"
+          isValid: true,
+          value: "fastest"
         }
       },
+      isFormValid: false,
       loading: false,
       posted: false
     };
@@ -62,10 +64,18 @@ class ContactData extends Component {
     } else {
       return true;
     }
-    
+  }
+
+  checkFormValidity = (orderForm) => {
+    let valid = true;
+    Object.keys(orderForm).forEach ( key => {
+      valid = valid && orderForm[key].isValid;
+    });
+    return valid;
   }
 
   inputChangedHandler = (event, inputId) => {
+    console.log ('input handler');
     const updatedOrderForm = _.cloneDeep(this.state.orderForm);
     const isValid = this.checkInputValidity(
       event.target.value,
@@ -74,8 +84,10 @@ class ContactData extends Component {
     updatedOrderForm[inputId].value = event.target.value;
     updatedOrderForm[inputId].isValid = isValid;
     updatedOrderForm[inputId].isTouched = true;
+    const isFormValid = this.checkFormValidity(updatedOrderForm); 
     this.setState({
-      orderForm: updatedOrderForm
+      orderForm: updatedOrderForm,
+      isFormValid : isFormValid
     });
   };
 
@@ -90,9 +102,9 @@ class ContactData extends Component {
           key={element.id}
           elementType={element.config.elementType}
           elementConfig={element.config.elementConfig}
-          value={element.value}
-          isValid={element.isValid}
-          isTouched={element.isTouched}
+          value={element.config.value}
+          isValid={element.config.isValid}
+          isTouched={element.config.isTouched}
           onChange={event => this.inputChangedHandler(event, element.id)}
         />
       );
@@ -144,7 +156,7 @@ class ContactData extends Component {
     ) : (
       <form onSubmit={this.orderHandler}>
         {this.getFormElements()}
-        <Button buttonStyle="Success">ORDER</Button>
+        <Button buttonStyle="Success" disabled={!this.state.isFormValid}>ORDER</Button>
       </form>
     );
     return (

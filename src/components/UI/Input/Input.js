@@ -4,11 +4,17 @@ import styles from "./Input.module.css";
 
 const Input = props => {
   let input = null;
+  let validationMessage = "";
   const inputStyles = [styles.InputElement];
   if (props.isTouched && !props.isValid) {
-    inputStyles.push (styles.Invalid);
+    inputStyles.push(styles.Invalid);
+    validationMessage = (
+      <span className={styles.ErrorMessage}>
+        Please enter a valid value
+      </span>
+    );
   }
-  const style = inputStyles.join (' ');
+  const style = inputStyles.join(" ");
 
   switch (props.elementType) {
     case "input":
@@ -16,7 +22,8 @@ const Input = props => {
         <input
           className={style}
           {...props.elementConfig}
-          value={props.value} onChange={props.onChange} 
+          value={props.value}
+          onChange={props.onChange}
         />
       );
       break;
@@ -25,15 +32,18 @@ const Input = props => {
         <textarea
           className={style}
           {...props.elementConfig}
-          value={props.value} onChange={props.onChange}
+          value={props.value}
+          onChange={props.onChange}
         />
       );
       break;
     case "select":
       const options = [];
       props.elementConfig.options.forEach(element => {
-        options.push (
-          <option key={element.value} value={element.value}>{element.displayedValue}</option>
+        options.push(
+          <option key={element.value} value={element.value}>
+            {element.displayedValue}
+          </option>
         );
       });
       input = (
@@ -57,6 +67,7 @@ const Input = props => {
     <div className={styles.Input}>
       <label className={styles.Label}>{props.label}</label>
       {input}
+      {validationMessage}
     </div>
   );
 };

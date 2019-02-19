@@ -27,3 +27,8 @@
 .Invalid {
     border: 1px solid red;
 }
+
+.ErrorMessage {
+    color: red;
+    margin: 5px 0;
+}
