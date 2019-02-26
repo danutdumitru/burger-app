@@ -1,4 +1,4 @@
-import * as actionTypes from "../actions";
+import * as actionTypes from "../actions/actionTypes";
 import _ from "lodash";
 
 const INGREDIENT_PRICES = {
@@ -11,7 +11,8 @@ const INGREDIENT_PRICES = {
 const initialState = {
   ingredients: {},
   totalPrice: 0,
-  initialPrice: 0
+  initialPrice: 0,
+  error: false
 };
 
 const getTotalPrice = state => {
@@ -42,10 +43,15 @@ const burgerReducer = (state = initialState, action) => {
       }
       break;
     }
-    case actionTypes.INIT_BURGER: {
+    case actionTypes.SET_INGREDIENTS: {
       newState.ingredients = { ...action.ingredients };
       newState.totalPrice = action.totalPrice;
       newState.initialPrice = action.totalPrice;
+      newState.error = false;
+      break;
+    }
+    case actionTypes.ERROR_FETCH_INGREDIENTS: {
+      newState.error = true;
       break;
     }
     default:

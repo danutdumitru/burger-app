@@ -8,14 +8,13 @@ import OrderSummary from "../../components/Burger/OrderSummary/OrderSummary";
 import axios from "../../axios-orders";
 import Spinner from "../../components/UI/Spinner/Spinner";
 import withErrorHandling from "../../hoc/withErrorHandling/withErrorHandling";
-import * as actionTypes from "../../store/actions";
+import * as actionCreators from '../../store/actions/index';
 
 class BurgerBuilder extends Component {
   state = {
     purchesable: false,
     purchasing: false,
-    loading: false,
-    error: false
+    loading: false
   };
 
   getPurchaseState(ingredients) {
@@ -28,17 +27,8 @@ class BurgerBuilder extends Component {
   }
 
   componentDidMount() {
-    console.log("BurgerBUilder - componentDidMount TO BE REFACTORED");
-    axios
-      .get("/burger.json")
-      .then(response => {
-        this.props.onInitBurger(response.data['ingredients'], +response.data['price']);
-      })
-      .catch(error =>
-        this.setState({
-          error: true
-        })
-      );
+    console.log("BurgerBUilder - componentDidMount TO BE REFACTORED");  
+    this.props.onInitBurger();
   }
 
   // addIngredientHandler = type => {
@@ -112,7 +102,7 @@ class BurgerBuilder extends Component {
           onPurchasing={this.purchaseHandler}
         />
       </>
-    ) : this.state.error ? (
+    ) : this.state.errorFetchIngredients ? (
       <p>The ingredients could not be loaded...</p>
     ) : (
       <Spinner />
@@ -134,22 +124,19 @@ class BurgerBuilder extends Component {
 const mapStateToProps = state => {
   return {
     burgerIngredients: state.ingredients,
-    burgerPrice: state.totalPrice
+    burgerPrice: state.totalPrice,
+    errorFetchIngredients: state.error
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
     onAddIngredient: ingredient =>
-      dispatch({ type: actionTypes.ADD_INGREDIENT, ingredient: ingredient }),
+      dispatch( actionCreators.addIngredient(ingredient)),
     onRemoveIngredient: ingredient =>
-      dispatch({ type: actionTypes.REMOVE_INGREDIENT, ingredient: ingredient }),
-    onInitBurger: (ingredients, totalPrice) =>
-      dispatch({
-        type: actionTypes.INIT_BURGER,
-        ingredients: ingredients,
-        totalPrice: totalPrice
-      })
+      dispatch(actionCreators.removeIngredient(ingredient)),
+    onInitBurger: () =>
+      dispatch(actionCreators.initIngredients())
   };
 };
 export default connect(
