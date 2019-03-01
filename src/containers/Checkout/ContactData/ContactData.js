@@ -4,10 +4,10 @@ import _ from "lodash";
 
 import styles from "./ContactData.module.css";
 import Button from "../../../components/UI/Button/Button";
-import axios from "../../../axios-orders";
 import Spinner from "../../../components/UI/Spinner/Spinner";
 import Input from "../../../components/UI/Input/Input";
-import {connect} from 'react-redux';
+import { connect } from "react-redux";
+import * as actions from "../../../store/actions";
 
 class ContactData extends Component {
   constructor(props) {
@@ -31,9 +31,7 @@ class ContactData extends Component {
           value: "fastest"
         }
       },
-      isFormValid: false,
-      loading: false,
-      posted: false
+      isFormValid: false
     };
   }
 
@@ -67,16 +65,16 @@ class ContactData extends Component {
     }
   }
 
-  checkFormValidity = (orderForm) => {
+  checkFormValidity = orderForm => {
     let valid = true;
-    Object.keys(orderForm).forEach ( key => {
+    Object.keys(orderForm).forEach(key => {
       valid = valid && orderForm[key].isValid;
     });
     return valid;
-  }
+  };
 
   inputChangedHandler = (event, inputId) => {
-    console.log ('input handler');
+    console.log("input handler");
     const updatedOrderForm = _.cloneDeep(this.state.orderForm);
     const isValid = this.checkInputValidity(
       event.target.value,
@@ -85,10 +83,10 @@ class ContactData extends Component {
     updatedOrderForm[inputId].value = event.target.value;
     updatedOrderForm[inputId].isValid = isValid;
     updatedOrderForm[inputId].isTouched = true;
-    const isFormValid = this.checkFormValidity(updatedOrderForm); 
+    const isFormValid = this.checkFormValidity(updatedOrderForm);
     this.setState({
       orderForm: updatedOrderForm,
-      isFormValid : isFormValid
+      isFormValid: isFormValid
     });
   };
 
@@ -114,13 +112,11 @@ class ContactData extends Component {
 
   orderHandler = event => {
     event.preventDefault();
+    this.props.orderStartHandler();
     this.postData();
   };
 
   postData = () => {
-    this.setState({
-      loading: true
-    });
     const orderData = {};
     Object.keys(this.state.orderForm).forEach(
       key => (orderData[key] = this.state.orderForm[key].value)
@@ -130,33 +126,20 @@ class ContactData extends Component {
       totalPrice: this.props.burgerPrice,
       orderData: orderData
     };
-
-    axios
-      .post("/orders.json", order)
-      .then(response => {
-        this.setState({
-          loading: false,
-          posted: true
-        });
-      })
-      .catch(error => {
-        this.setState({
-          loading: false,
-          posted: false
-        });
-        console.log(error);
-      });
+    this.props.placeOrderHandler(order);
   };
   render() {
-    if (this.state.posted) {
+    if (this.props.orderSuccess) {
       return <Redirect to="/" />;
-    }
-    const form = this.state.loading ? (
+    } 
+    const form = this.props.orderPostStarted ? (
       <Spinner />
     ) : (
       <form onSubmit={this.orderHandler}>
         {this.getFormElements()}
-        <Button buttonStyle="Success" disabled={!this.state.isFormValid}>ORDER</Button>
+        <Button buttonStyle="Success" disabled={!this.state.isFormValid}>
+          ORDER
+        </Button>
       </form>
     );
     return (
@@ -170,9 +153,23 @@ class ContactData extends Component {
 
 const mapStateToProps = state => {
   return {
-    burgerIngredients: state.ingredients,
-    burgerPrice: state.totalPrice
-  }
-}
+    burgerIngredients: state.burger.ingredients,
+    burgerPrice: state.burger.totalPrice,
+    orderSuccess: state.order.postedSuccess,
+    orderPostStarted: state.order.startedRequest,
+    orderId: state.order.orderId
+  };
+};
 
-export default connect(mapStateToProps,null)(ContactData);
+const mapDispatchToProps = dispatch => {
+  return {
+    placeOrderHandler: orderData =>
+      dispatch(actions.tryPlaceOrderBurger(orderData)),
+    orderStartHandler: () => dispatch (actions.orderBurgerStart())
+    }
+  };
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ContactData);

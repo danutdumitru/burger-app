@@ -9,7 +9,7 @@ const INGREDIENT_PRICES = {
 };
 
 const initialState = {
-  ingredients: {},
+  ingredients: null,
   totalPrice: 0,
   initialPrice: 0,
   error: false

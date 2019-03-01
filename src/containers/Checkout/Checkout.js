@@ -1,9 +1,10 @@
 import React, { Component } from "react";
-import { Route } from "react-router-dom";
+import { Route, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 
 import CheckoutSummary from "../../components/Order/CheckoutSummary/CheckoutSummary";
 import ContactData from "./ContactData/ContactData";
+import * as actions from '../../store/actions';
 
 class Checkout extends Component {
   onContinueHandler = () => {
@@ -14,8 +15,11 @@ class Checkout extends Component {
     this.props.history.goBack();
   };
 
+  componentWillMount() {
+    this.props.onPurchasingInit();
+  }
   render() {
-    return (
+    return this.props.burgerIngredients?(
       <div>
         <CheckoutSummary
           ingredients={this.props.burgerIngredients}
@@ -26,18 +30,26 @@ class Checkout extends Component {
           path={this.props.match.path + "/contact-data"} component={ContactData}
         />
       </div>
+    ): (
+      <Redirect to="/"/>
     );
   }
 }
 
 const mapStateToProps = state => {
   return {
-    burgerIngredients: state.ingredients,
-    burgerPrice: state.totalPrice
+    burgerIngredients: state.burger.ingredients,
+    burgerPrice: state.burger.totalPrice,
   };
 };
 
+const mapDispatchToProps = dispatch => {
+  return {
+    onPurchasingInit: () => dispatch(actions.orderPurchasingInit())
+  }
+}
+
 export default connect(
   mapStateToProps,
-  null
+  mapDispatchToProps
 )(Checkout);

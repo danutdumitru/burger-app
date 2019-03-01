@@ -17,6 +17,14 @@ const setIngredients = (ingredients, totalPrice) => {
   };
 };
 
+const orderIngredients = (ingredients) => {
+  const arr = [];
+  const result = {};
+  Object.keys(ingredients).forEach (key => arr.push ( { key: key, order: ingredients[key].order }));
+  arr.sort( (a,b) => a.order - b.order).forEach (elem => result[elem.key] = ingredients[elem.key]['quantity']);
+  return result;
+}
+
 export const initIngredients = () => {
   console.log ('InitIngredients');
   return dispatch => {
@@ -25,7 +33,7 @@ export const initIngredients = () => {
       .get("/burger.json")
       .then(response => {
         dispatch(
-          setIngredients(response.data["ingredients"], +response.data["price"])
+          setIngredients( orderIngredients(response.data["ingredients"]), +response.data["price"])
         );
       })
       .catch(error => dispatch(errorFetchIngredients()));

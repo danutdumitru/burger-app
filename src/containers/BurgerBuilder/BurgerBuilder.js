@@ -8,7 +8,7 @@ import OrderSummary from "../../components/Burger/OrderSummary/OrderSummary";
 import axios from "../../axios-orders";
 import Spinner from "../../components/UI/Spinner/Spinner";
 import withErrorHandling from "../../hoc/withErrorHandling/withErrorHandling";
-import * as actionCreators from '../../store/actions/index';
+import * as actionCreators from "../../store/actions/index";
 
 class BurgerBuilder extends Component {
   state = {
@@ -27,23 +27,9 @@ class BurgerBuilder extends Component {
   }
 
   componentDidMount() {
-    console.log("BurgerBUilder - componentDidMount TO BE REFACTORED");  
+    console.log("BurgerBUilder - componentDidMount TO BE REFACTORED");
     this.props.onInitBurger();
   }
-
-  // addIngredientHandler = type => {
-  //   this.props.onAddIngredient(type);
-  //   this.setState({
-  //     purchesable: this.getPurchaseState(this.props.burgerIngredients)
-  //   });
-  // };
-
-  // removeIngredientHandler = type => {
-  //   this.props.onRemoveIngredient(type);
-  //   this.setState({
-  //     purchesable: this.getPurchaseState(this.props.burgerIngredients)
-  //   });
-  // };
 
   purchaseHandler = () => {
     this.setState({
@@ -70,11 +56,6 @@ class BurgerBuilder extends Component {
   };
 
   render() {
-    // console.log("render...");
-    // if (this.state.loading) {
-    //   return <Redirect to={ {pathname: "/checkout", ingredients :this.state.ingredients}}/>;
-    // }
-
     const disabledInfo = {
       ...this.props.burgerIngredients
     };
@@ -90,20 +71,20 @@ class BurgerBuilder extends Component {
       />
     );
 
-    const burger = this.props.burgerIngredients ? (
+    const burger = this.props.errorFetchIngredients ? (
+      <p>The ingredients could not be loaded...</p>
+    ) : this.props.burgerIngredients ? (
       <>
         <Burger ingredients={this.props.burgerIngredients} />
         <BuildControls
-          onAddIngredient={ (type) => this.props.onAddIngredient(type)}
-          onRemoveIngredient={ (type) => this.props.onRemoveIngredient(type)}
+          onAddIngredient={type => this.props.onAddIngredient(type)}
+          onRemoveIngredient={type => this.props.onRemoveIngredient(type)}
           disabledInfo={disabledInfo}
           totalPrice={this.props.burgerPrice}
           purchesable={this.getPurchaseState(this.props.burgerIngredients)}
           onPurchasing={this.purchaseHandler}
         />
       </>
-    ) : this.state.errorFetchIngredients ? (
-      <p>The ingredients could not be loaded...</p>
     ) : (
       <Spinner />
     );
@@ -123,20 +104,19 @@ class BurgerBuilder extends Component {
 
 const mapStateToProps = state => {
   return {
-    burgerIngredients: state.ingredients,
-    burgerPrice: state.totalPrice,
-    errorFetchIngredients: state.error
+    burgerIngredients: state.burger.ingredients,
+    burgerPrice: state.burger.totalPrice,
+    errorFetchIngredients: state.burger.error
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
     onAddIngredient: ingredient =>
-      dispatch( actionCreators.addIngredient(ingredient)),
+      dispatch(actionCreators.addIngredient(ingredient)),
     onRemoveIngredient: ingredient =>
       dispatch(actionCreators.removeIngredient(ingredient)),
-    onInitBurger: () =>
-      dispatch(actionCreators.initIngredients())
+    onInitBurger: () => dispatch(actionCreators.initIngredients())
   };
 };
 export default connect(
