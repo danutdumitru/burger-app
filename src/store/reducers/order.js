@@ -1,4 +1,3 @@
-import _ from "lodash";
 import * as actionTypes from "../actions/actionTypes";
 
 const initialState = {
@@ -9,7 +8,6 @@ const initialState = {
 };
 
 const orderReducer = (state = initialState, action) => {
-  let newState;
   switch (action.type) {
     case actionTypes.ORDER_PURCHASING_INIT:
       return {
@@ -17,10 +15,6 @@ const orderReducer = (state = initialState, action) => {
         postedSuccess: false
       }
     case actionTypes.ORDER_BURGER_START:
-      // newState = _.cloneDeep(state);
-      // newState.startedRequest = true;
-      // newState.orderId = null;
-      // newState.postedSuccess = false;
       return {
         ...state,
         orderId: null,
@@ -28,12 +22,12 @@ const orderReducer = (state = initialState, action) => {
       }
       ;
     case actionTypes.ORDER_BURGER_SUCCESS:
-      newState = _.cloneDeep(state);
-      newState.orders.push(action.orderData);
-      newState.startedRequest = false;
-      newState.orderId = action.orderId;
-      newState.postedSuccess = true;
-      return newState;
+      return {
+        ...state,
+        startedRequest: false,
+        orderId: action.orderId,
+        postedSuccess: true
+      };
     case actionTypes.ORDER_BURGER_FAIL:
       return {
         ...state,
@@ -41,6 +35,24 @@ const orderReducer = (state = initialState, action) => {
         orderId: null,
         postedSuccess: false
       };
+    case actionTypes.ORDER_LOADING_START: 
+      return {
+        ...state,
+        startedRequest: true,
+        orderId: null,
+        orders: []
+      }; 
+    case actionTypes.ORDER_LOADING_SUCCESS: 
+      return {
+        ...state,
+        startedRequest: false,
+        orders: action.orders.concat()
+      };
+    case actionTypes.ORDER_LOADING_FAIL: 
+      return {
+        ...state,
+        startedRequest: false
+      }
     default:
       return state;
   }

@@ -40,7 +40,7 @@ export const tryPlaceOrderBurger = orderData => {
         dispatch(orderBurgerSuccess(response.data.name, orderData));
       })
       .catch(error => {
-        console.log('ERROR ', error);
+        console.log("ERROR ", error);
         dispatch(orderBurgerFail("The order could not be saved..."));
       });
   };
@@ -49,5 +49,52 @@ export const tryPlaceOrderBurger = orderData => {
 export const orderPurchasingInit = () => {
   return {
     type: actionTypes.ORDER_PURCHASING_INIT
+  };
+};
+
+export const orderLoadingStart = () => {
+  return {
+    type: actionTypes.ORDER_LOADING_START
+  };
+};
+
+export const orderLoadingSuccess = orders => {
+  return {
+    type: actionTypes.ORDER_LOADING_SUCCESS,
+    orders: orders
+  };
+};
+
+export const orderLoadingFail = (error) => {
+  return dispatch => {
+    dispatch ( {
+      type: actionTypes.ORDER_LOADING_FAIL
+    });
+    dispatch ( {
+      type: actionTypes.SET_MESSAGE,
+      message: error
+    })
   }
 }
+
+export const tryLoadingOrders = () => {
+  return dispatch => {
+    dispatch( orderLoadingStart());
+    axios
+      .get("/orders.json")
+      .then(response => {
+        const orders = [];
+        Object.keys(response.data).forEach(key => {
+          orders.push({
+            id: key,
+            ...response.data[key]
+          });
+        });
+        dispatch( orderLoadingSuccess(orders));
+      })
+      .catch(error => {
+        console.log(error);
+        dispatch (orderLoadingFail("The Orders could not be loaded..."));
+      });
+  };
+};
