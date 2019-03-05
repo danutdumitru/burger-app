@@ -5,20 +5,20 @@ import _ from "lodash";
 import styles from "./ContactData.module.css";
 import Button from "../../../components/UI/Button/Button";
 import Spinner from "../../../components/UI/Spinner/Spinner";
-import Input from "../../../components/UI/Input/Input";
 import { connect } from "react-redux";
 import * as actions from "../../../store/actions";
+import * as formUtils from "../../../utils/forms";
 
 class ContactData extends Component {
   constructor(props) {
     super(props);
     this.state = {
       orderForm: {
-        name: this.getInputElement("text", "Your name", true, 3),
-        email: this.getInputElement("email", "Your email", true),
-        street: this.getInputElement("text", "Your Street", true),
-        postalCode: this.getInputElement("text", "ZIP Code", true, 5),
-        country: this.getInputElement("text", "Your Country", true),
+        name: formUtils.getInputElement("text", "Your name", true, 3),
+        email: formUtils.getInputElement("email", "Your email", true),
+        street: formUtils.getInputElement("text", "Your Street", true),
+        postalCode: formUtils.getInputElement("text", "ZIP Code", true, 5),
+        country: formUtils.getInputElement("text", "Your Country", true),
         deliveryMethod: {
           elementType: "select",
           elementConfig: {
@@ -35,78 +35,19 @@ class ContactData extends Component {
     };
   }
 
-  getInputElement(type, placeholder, isRequired, minLength, maxLength) {
-    return {
-      elementType: "input",
-      elementConfig: {
-        type: type,
-        placeholder: placeholder
-      },
-      value: "",
-      isValid: false,
-      validation: {
-        required: isRequired,
-        minLength: minLength ? minLength : 0,
-        maxLength: maxLength ? maxLength : 99999999
-      },
-      isTouched: false
-    };
-  }
-
-  checkInputValidity(value, rules) {
-    if (rules) {
-      return (
-        (!rules.required || value.trim() !== "") &&
-        value.trim().length >= rules.minLength &&
-        value.trim().length <= rules.maxLength
-      );
-    } else {
-      return true;
-    }
-  }
-
-  checkFormValidity = orderForm => {
-    let valid = true;
-    Object.keys(orderForm).forEach(key => {
-      valid = valid && orderForm[key].isValid;
-    });
-    return valid;
-  };
-
   inputChangedHandler = (event, inputId) => {
-    console.log("input handler");
     const updatedOrderForm = _.cloneDeep(this.state.orderForm);
-    const isValid = this.checkInputValidity(
+    const isValid = formUtils.checkInputValidity(
       event.target.value,
       updatedOrderForm[inputId].validation
     );
     updatedOrderForm[inputId].value = event.target.value;
     updatedOrderForm[inputId].isValid = isValid;
     updatedOrderForm[inputId].isTouched = true;
-    const isFormValid = this.checkFormValidity(updatedOrderForm);
+    const isFormValid = formUtils.checkFormValidity(updatedOrderForm);
     this.setState({
       orderForm: updatedOrderForm,
       isFormValid: isFormValid
-    });
-  };
-
-  getFormElements = () => {
-    const formElements = [];
-    Object.keys(this.state.orderForm).forEach(key => {
-      formElements.push({ id: key, config: this.state.orderForm[key] });
-    });
-    return formElements.map(element => {
-      return (
-        <Input
-          key={element.id}
-          elementType={element.config.elementType}
-          elementConfig={element.config.elementConfig}
-          value={element.config.value}
-          isValid={element.config.isValid}
-          isTouched={element.config.isTouched}
-          onChange={event => this.inputChangedHandler(event, element.id)}
-        />
-      );
     });
   };
 
@@ -126,7 +67,7 @@ class ContactData extends Component {
       totalPrice: this.props.burgerPrice,
       orderData: orderData
     };
-    this.props.placeOrderHandler(order);
+    this.props.placeOrderHandler(order, this.props.tokenId);
   };
   render() {
     if (this.props.orderSuccess) {
@@ -136,7 +77,7 @@ class ContactData extends Component {
       <Spinner />
     ) : (
       <form onSubmit={this.orderHandler}>
-        {this.getFormElements()}
+        {formUtils.getFormElements(this.state.orderForm, this.inputChangedHandler)}
         <Button buttonStyle="Success" disabled={!this.state.isFormValid}>
           ORDER
         </Button>
@@ -157,14 +98,15 @@ const mapStateToProps = state => {
     burgerPrice: state.burger.totalPrice,
     orderSuccess: state.order.postedSuccess,
     orderPostStarted: state.order.startedRequest,
-    orderId: state.order.orderId
+    orderId: state.order.orderId,
+    tokenId: state.auth.token
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    placeOrderHandler: orderData =>
-      dispatch(actions.tryPlaceOrderBurger(orderData)),
+    placeOrderHandler: (orderData, tokenId) =>
+      dispatch(actions.tryPlaceOrderBurger(orderData, tokenId)),
     orderStartHandler: () => dispatch (actions.orderBurgerStart())
     }
   };

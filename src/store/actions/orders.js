@@ -1,5 +1,6 @@
 import * as actionTypes from "./actionTypes";
 import axios from "../../axios-orders";
+import {} from 'react-redux';
 
 export const orderBurgerSuccess = (orderId, orderData) => {
   return dispatch => {
@@ -31,11 +32,11 @@ export const orderBurgerStart = () => {
   };
 };
 
-export const tryPlaceOrderBurger = orderData => {
+export const tryPlaceOrderBurger = (orderData, tokenId) => {
   console.log("[tryPlaceOrderBurger] start");
   return dispatch => {
     axios
-      .post("/orders.json", orderData)
+      .post("/orders.json?auth=" + tokenId, orderData)
       .then(response => {
         dispatch(orderBurgerSuccess(response.data.name, orderData));
       })
@@ -77,11 +78,11 @@ export const orderLoadingFail = (error) => {
   }
 }
 
-export const tryLoadingOrders = () => {
+export const tryLoadingOrders = (tokenId) => {
   return dispatch => {
     dispatch( orderLoadingStart());
     axios
-      .get("/orders.json")
+      .get("/orders.json?auth=" + tokenId)
       .then(response => {
         const orders = [];
         Object.keys(response.data).forEach(key => {
