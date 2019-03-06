@@ -1,4 +1,4 @@
 export {addIngredient, removeIngredient, initIngredients} from './burgerBuilder';
 export {tryPlaceOrderBurger, orderBurgerStart, orderPurchasingInit, tryLoadingOrders} from './orders';
 export {setMessage, clearMessage} from './message';
-export {tryAuth} from './auth';
+export {tryAuth, authLogout} from './auth';

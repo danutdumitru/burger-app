@@ -1,10 +1,11 @@
 import * as actionTypes from "./actionTypes";
 import axios from "axios";
+import * as keys from "../../private/keys";
 
 const AUTH_SIGNUP_URL =
-  "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyCbefOq-HdgCbjH4kD0dOw58NAoSCX30lY";
+  "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=" + keys.GOOGLE_API_KEY;
 const AUTH_SIGNIN_URL =
-  "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=AIzaSyCbefOq-HdgCbjH4kD0dOw58NAoSCX30lY";
+  "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=" + keys.GOOGLE_API_KEY;
 
 export const authStart = () => {
   return {
@@ -21,6 +22,12 @@ export const authSuccess = authData => {
     });
   };
 };
+
+export const authLogout = () => {
+  return {
+    type: actionTypes.AUTH_LOGOUT
+  }
+}
 
 export const authFail = error => {
   return dispatch => {
