@@ -3,9 +3,11 @@ import axios from "axios";
 import * as keys from "../../private/keys";
 
 const AUTH_SIGNUP_URL =
-  "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=" + keys.GOOGLE_API_KEY;
+  "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=" +
+  keys.GOOGLE_API_KEY;
 const AUTH_SIGNIN_URL =
-  "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=" + keys.GOOGLE_API_KEY;
+  "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=" +
+  keys.GOOGLE_API_KEY;
 
 export const authStart = () => {
   return {
@@ -13,10 +15,26 @@ export const authStart = () => {
   };
 };
 
+function saveAuthDataToLocalStorage(authData) {
+  localStorage.setItem("token", authData.idToken);
+  localStorage.setItem("userId", authData.localId);
+  localStorage.setItem("email", authData.email);
+  const expirationDate = new Date(
+    new Date().getTime() + authData.expiresIn * 1000
+  );
+  localStorage.setItem("expirationDate", expirationDate);
+}
+
+function cleanAuthDataFromLocalStorage() {
+  localStorage.clear();
+}
+
 export const authSuccess = authData => {
   return dispatch => {
+    saveAuthDataToLocalStorage(authData);
     dispatch({
       type: actionTypes.AUTH_SUCCESS,
+      userId: authData.localId,
       email: authData.email,
       token: authData.idToken
     });
@@ -24,10 +42,11 @@ export const authSuccess = authData => {
 };
 
 export const authLogout = () => {
+  cleanAuthDataFromLocalStorage();
   return {
     type: actionTypes.AUTH_LOGOUT
-  }
-}
+  };
+};
 
 export const authFail = error => {
   return dispatch => {
@@ -48,7 +67,7 @@ export const logutOnTokenExpire = expiresIn => {
       dispatch({
         type: actionTypes.AUTH_LOGOUT
       });
-    }, expiresIn );
+    }, expiresIn);
   };
 };
 
@@ -72,5 +91,31 @@ export const tryAuth = (email, password, isSignUp) => {
         console.log(error);
         dispatch(authFail(error.response.data.error.message));
       });
+  };
+};
+
+export const checkAuthState = () => {
+  return dispatch => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      return;
+    }
+    const expirationDate = new Date(localStorage.getItem("expirationDate"));
+    const newExpirationTime = expirationDate.getTime() - new Date().getTime();
+    if (newExpirationTime > 0) {
+      const email = localStorage.getItem("email");
+      const userId = localStorage.getItem("userId");
+      dispatch(
+        authSuccess({
+          idToken: token,
+          email: email,
+          localId: userId,
+          expiresIn: newExpirationTime
+        })
+      );
+      dispatch(logutOnTokenExpire(newExpirationTime));
+    } else {
+      dispatch (authLogout());
+    }
   };
 };

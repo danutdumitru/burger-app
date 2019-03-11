@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import {Redirect} from 'react-router-dom';
 
 import Burger from "../../components/Burger/Burger";
 import BuildControls from "../../components/Burger/BuildControls/BuildControls";
@@ -14,7 +15,8 @@ class BurgerBuilder extends Component {
   state = {
     purchesable: false,
     purchasing: false,
-    loading: false
+    loading: false,
+    forwardToLogin: false
   };
 
   getPurchaseState(ingredients) {
@@ -27,14 +29,21 @@ class BurgerBuilder extends Component {
   }
 
   componentDidMount() {
-    console.log("BurgerBUilder - componentDidMount TO BE REFACTORED");
-    this.props.onInitBurger();
+    // if (!this.props.burgerIngredients) {
+      this.props.onInitBurger();
+    // }
   }
 
   purchaseHandler = () => {
-    this.setState({
-      purchasing: true
-    });
+    if (this.props.isAuthenticated) {
+      this.setState({
+        purchasing: true
+      });
+    } else {
+      this.setState ( {
+        forwardToLogin: true
+      })
+    }
   };
 
   cancelPurchaseHandler = () => {
@@ -56,6 +65,9 @@ class BurgerBuilder extends Component {
   };
 
   render() {
+    const redirectToLogin = this.state.forwardToLogin?
+      <Redirect to="/auth"/>: null;
+    
     const disabledInfo = {
       ...this.props.burgerIngredients
     };
@@ -83,6 +95,7 @@ class BurgerBuilder extends Component {
           totalPrice={this.props.burgerPrice}
           purchesable={this.getPurchaseState(this.props.burgerIngredients)}
           onPurchasing={this.purchaseHandler}
+          isAuthenticated= {this.props.isAuthenticated}
         />
       </>
     ) : (
@@ -90,6 +103,7 @@ class BurgerBuilder extends Component {
     );
     return (
       <>
+        {redirectToLogin}
         <Modal
           show={this.state.purchasing}
           onModalClose={this.cancelPurchaseHandler}
@@ -106,7 +120,8 @@ const mapStateToProps = state => {
   return {
     burgerIngredients: state.burger.ingredients,
     burgerPrice: state.burger.totalPrice,
-    errorFetchIngredients: state.burger.error
+    errorFetchIngredients: state.burger.error,
+    isAuthenticated: state.auth.token != null
   };
 };
 

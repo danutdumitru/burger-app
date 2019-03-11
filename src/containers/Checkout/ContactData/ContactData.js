@@ -1,11 +1,12 @@
 import React, { Component } from "react";
-import { Redirect } from "react-router-dom";
+import { Redirect} from "react-router-dom";
 import _ from "lodash";
+import { connect } from "react-redux";
+
 
 import styles from "./ContactData.module.css";
 import Button from "../../../components/UI/Button/Button";
 import Spinner from "../../../components/UI/Spinner/Spinner";
-import { connect } from "react-redux";
 import * as actions from "../../../store/actions";
 import * as formUtils from "../../../utils/forms";
 
@@ -65,7 +66,8 @@ class ContactData extends Component {
     const order = {
       ingredients: this.props.burgerIngredients,
       totalPrice: this.props.burgerPrice,
-      orderData: orderData
+      orderData: orderData,
+      userId: this.props.userId
     };
     this.props.placeOrderHandler(order, this.props.tokenId);
   };
@@ -99,7 +101,8 @@ const mapStateToProps = state => {
     orderSuccess: state.order.postedSuccess,
     orderPostStarted: state.order.startedRequest,
     orderId: state.order.orderId,
-    tokenId: state.auth.token
+    tokenId: state.auth.token,
+    userId: state.auth.userId
   };
 };
 

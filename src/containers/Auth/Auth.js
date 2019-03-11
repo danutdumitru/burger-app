@@ -67,9 +67,12 @@ class Auth extends Component {
   };
 
   render() {
-    const result = this.props.loading ? (
+    let result = this.props.loading ? (
       <Spinner />
-    ) : this.props.tokenId ? (
+    ) : (this.props.tokenId && this.props.burgerBuilding) ? (
+      <Redirect to="/checkout"/>
+    ):
+    this.props.tokenId ? (
       <Redirect to="/" />
     ) : (
       <>
@@ -94,7 +97,8 @@ class Auth extends Component {
 const mapStateToProps = state => {
   return {
     loading: state.auth.loading,
-    tokenId: state.auth.token
+    tokenId: state.auth.token,
+    burgerBuilding: state.burger.building
   };
 };
 

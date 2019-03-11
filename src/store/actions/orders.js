@@ -78,11 +78,11 @@ export const orderLoadingFail = (error) => {
   }
 }
 
-export const tryLoadingOrders = (tokenId) => {
+export const tryLoadingOrders = (tokenId, userId) => {
   return dispatch => {
     dispatch( orderLoadingStart());
     axios
-      .get("/orders.json?auth=" + tokenId)
+      .get("/orders.json?auth=" + tokenId + '&orderBy="userId"&equalTo="' + userId + '"')
       .then(response => {
         const orders = [];
         Object.keys(response.data).forEach(key => {
