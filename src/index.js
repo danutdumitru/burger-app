@@ -15,7 +15,7 @@ import messageReducer from "./store/reducers/nessage";
 import authReducer from "./store/reducers/auth";
 import { watchAuth, watchBurgerBuilder, watchOrderSaga } from "./store/sagas";
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const composeEnhancers = process.env.NODE_ENV==='development'?  window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ : null || compose;
 
 const rootReducer = combineReducers({
   burger: burgerReducer,
