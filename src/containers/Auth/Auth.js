@@ -69,10 +69,9 @@ class Auth extends Component {
   render() {
     let result = this.props.loading ? (
       <Spinner />
-    ) : (this.props.tokenId && this.props.burgerBuilding) ? (
-      <Redirect to="/checkout"/>
-    ):
-    this.props.tokenId ? (
+    ) : this.props.tokenId && this.props.burgerBuilding ? (
+      <Redirect to="/checkout" />
+    ) : this.props.tokenId ? (
       <Redirect to="/" />
     ) : (
       <>
@@ -105,11 +104,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     registerUserHandler: (email, password, isSignUp) =>
-      dispatch(actions.tryAuth(email, password, isSignUp))
+      dispatch(actions.initiateAuth(email, password, isSignUp))
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Auth);
+export default connect(mapStateToProps, mapDispatchToProps)(Auth);
